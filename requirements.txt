@@ -1,0 +1,79 @@
+# ==========================
+# Deep Learning
+# ==========================
+torch
+torchvision
+torchaudio
+
+# ==========================
+# Hugging Face
+# ==========================
+transformers
+datasets
+accelerate
+huggingface_hub
+tokenizers
+safetensors
+
+# ==========================
+# OCR
+# ==========================
+paddlepaddle
+paddleocr
+
+# ==========================
+# Computer Vision
+# ==========================
+opencv-python
+Pillow
+numpy
+
+# ==========================
+# Data Processing
+# ==========================
+pandas
+scikit-learn
+matplotlib
+seaborn
+tqdm
+
+# ==========================
+# API
+# ==========================
+fastapi
+uvicorn
+python-multipart
+pydantic
+
+# ==========================
+# Environment
+# ==========================
+python-dotenv
+PyYAML
+
+# ==========================
+# Logging & Utilities
+# ==========================
+loguru
+requests
+
+# ==========================
+# PDF Processing
+# ==========================
+pdf2image
+PyMuPDF
+
+# ==========================
+# ATS Utilities
+# ==========================
+rapidfuzz
+
+# ==========================
+# Optional LLM Feedback
+# ==========================
+openai
+
+# ==========================
+# Testing
+# ==========================
+pytest
