@@ -15,7 +15,7 @@ from ultralytics import YOLO
 # ==========================
 
 # Path to your trained YOLO model
-model_path = "/Users/anshchourasiya/Desktop/Student-360-proj/distraction-model/my_model.pt"
+model_path = "/Users/anshchourasiya/Desktop/Student-360-proj/distraction-model/my_model/train/weights/best.pt" 
 
 # Webcam source
 # 0 = default webcam
