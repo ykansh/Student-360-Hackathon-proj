@@ -77,3 +77,21 @@ openai
 # Testing
 # ==========================
 pytest
+
+
+
+
+langchain>=0.3.27
+langchain-core>=0.3.70
+langchain-community>=0.3.27
+langchain-mistralai>=0.2.0
+
+
+tavily-python
+beautifulsoup4
+lxml
+
+# ==========================
+# Agent Tools
+# ==========================
+langsmith
