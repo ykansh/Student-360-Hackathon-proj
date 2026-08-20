@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
+import logoDarkHero from '../Things-to-be-added/logo-360.png';
+import logoLightHero from '../Things-to-be-added/Logo_white.png';
+import logoDarkNav from '../Things-to-be-added/logoblack.png';
+import logoLightNav from '../Things-to-be-added/logowhite.png';
+
 
 function App() {
   const [theme, setTheme] = useState('dark');
@@ -89,7 +94,7 @@ function App() {
   };
 
   const toggleFaq = (index) => {
-    setActiveFaq(activeFaq === index ? null : index);
+    setActiveFaq((current) => (current === index ? null : index));
   };
 
   return (
@@ -105,12 +110,23 @@ function App() {
       <nav className="navbar">
         <div className="nav-container">
           <div className="logo">
-            <img 
-              src={theme === 'dark' ? "/logo-white.png" : "/logo-black.png"} 
-              alt="Student 360 Logo" 
-              onError={(e) => e.target.src='https://via.placeholder.com/150x50?text=Student+360'} 
-            />
+            <a href="#hero">
+              <img 
+                src={theme === 'dark' ? logoLightNav : logoDarkNav} 
+                alt="Student 360 Logo" 
+                onError={(e) => e.target.src='https://via.placeholder.com/150x50?text=Student+360'} 
+              />
+            </a>
           </div>
+
+          <div className="nav-links">
+            <a href="#hero">Home</a>
+            <a href="#features">Features</a>
+            <a href="#pdf-guide">PDF Guide</a>
+            <a href="#comparison">Comparison</a>
+            <a href="#faqs">FAQs</a>
+          </div>
+
           <div className="nav-actions">
             <button onClick={toggleTheme} className="theme-btn" aria-label="Toggle Dark Mode">
               <i className={theme === 'dark' ? 'bx bx-sun' : 'bx bx-moon'}></i>
@@ -122,14 +138,6 @@ function App() {
       {/* Hero Section */}
       <header className="hero" id="hero">
         <div className="hero-content">
-          <div className="hero-logo" style={{ marginBottom: '30px' }}>
-            <img 
-              src={theme === 'dark' ? "/logo-white.png" : "/logo-black.png"} 
-              alt="Student 360 Logo" 
-              style={{ maxHeight: '80px', width: 'auto' }}
-              onError={(e) => e.target.src='https://via.placeholder.com/150x50?text=Student+360'} 
-            />
-          </div>
           <h1 className="hero-title">‘Kal Se’ to <span className="highlight">‘Aaj Se’</span></h1>
           <p className="hero-subtitle">Because “I’ll start tomorrow” is getting old.</p>
           <div className="hero-cta">
@@ -145,7 +153,7 @@ function App() {
       </header>
 
       {/* Features Section */}
-      <section className="features-section">
+      <section id="features" className="features-section">
         <div className="section-container">
           <h2 className="section-title">Why Student 360?</h2>
           <div className="grid-container">
@@ -182,19 +190,24 @@ function App() {
       </section>
 
       {/* Tutorial Section */}
-      <section className="tutorial-section bg-alt">
+      <section id="pdf-guide" className="tutorial-section bg-alt">
         <div className="section-container">
           <h2 className="section-title">How to Install</h2>
-          <div className="tutorial-placeholder glass-effect fade-in-up" ref={addToRefs}>
-            <i className='bx bx-file-blank'></i>
-            <h3>PDF Tutorial Space</h3>
-            <p>Your installation guide PDF will be embedded here.</p>
+          <div className="tutorial-actions">
+            <a
+              href="../Things-to-be-added/pdf-Recovered_01.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary tutorial-open-btn"
+            >
+              Open PDF
+            </a>
           </div>
         </div>
       </section>
 
       {/* Compare Section */}
-      <section className="compare-section">
+      <section id="comparison" className="compare-section">
         <div className="section-container">
           <h2 className="section-title">How We Stack Up</h2>
           <div className="grid-container">
@@ -231,36 +244,37 @@ function App() {
       </section>
 
       {/* FAQ Section */}
-      <section className="faq-section bg-alt">
+      <section id="faqs" className="faq-section bg-alt">
         <div className="section-container">
           <h2 className="section-title">Frequently Asked Questions</h2>
           
           <div className="faq-container">
-            <div className={`faq-item fade-in-up ${activeFaq === 0 ? 'active' : ''}`} ref={addToRefs}>
-              <button className="faq-question" onClick={() => toggleFaq(0)}>
+            <div className={`faq-item ${activeFaq === 0 ? 'active' : ''}`} ref={addToRefs}>
+              <button type="button" className="faq-question" onClick={() => toggleFaq(0)} aria-expanded={activeFaq === 0}>
                 Is the extension safe?
-                <i className='bx bx-chevron-down'></i>
+                <i className={`bx ${activeFaq === 0 ? 'bx-x' : 'bx-plus'}`}></i>
               </button>
-              <div className="faq-answer">
+              <div className={`faq-answer ${activeFaq === 0 ? 'open' : ''}`}>
                 <p>Yes, as it runs locally when you download it. It is 100% safe.</p>
               </div>
             </div>
 
-            <div className={`faq-item fade-in-up delay-1 ${activeFaq === 1 ? 'active' : ''}`} ref={addToRefs}>
-              <button className="faq-question" onClick={() => toggleFaq(1)}>
+            <div className={`faq-item ${activeFaq === 1 ? 'active' : ''}`} ref={addToRefs}>
+              <button type="button" className="faq-question" onClick={() => toggleFaq(1)} aria-expanded={activeFaq === 1}>
                 Is the extension free?
-                <i className='bx bx-chevron-down'></i>
+                <i className={`bx ${activeFaq === 1 ? 'bx-x' : 'bx-plus'}`}></i>
               </button>
-              <div className="faq-answer">
+              <div className={`faq-answer ${activeFaq === 1 ? 'open' : ''}`}>
                 <p>Yes, Student 360 is completely free to download and use.</p>
               </div>
             </div>
-            <div className={`faq-item fade-in-up delay-2 ${activeFaq === 2 ? 'active' : ''}`} ref={addToRefs}>
-              <button className="faq-question" onClick={() => toggleFaq(2)}>
+
+            <div className={`faq-item ${activeFaq === 2 ? 'active' : ''}`} ref={addToRefs}>
+              <button type="button" className="faq-question" onClick={() => toggleFaq(2)} aria-expanded={activeFaq === 2}>
                 Is the extension easy to use?
-                <i className='bx bx-chevron-down'></i>
+                <i className={`bx ${activeFaq === 2 ? 'bx-x' : 'bx-plus'}`}></i>
               </button>
-              <div className="faq-answer">
+              <div className={`faq-answer ${activeFaq === 2 ? 'open' : ''}`}>
                 <p>Yes, it is easy to use, easy to parse.</p>
               </div>
             </div>
@@ -271,14 +285,38 @@ function App() {
       {/* Footer */}
       <footer className="footer">
         <div className="footer-container">
-          <div className="footer-logo">
-             <img 
-              src={theme === 'dark' ? "/logo-white.png" : "/logo-black.png"} 
-              alt="Student 360 Logo" 
-              onError={(e) => e.target.src='https://via.placeholder.com/150x50?text=Student+360'} 
-            />
+          <div className="footer-top">
+            <div className="footer-brand">
+              <div className="footer-logo">
+                <img 
+                  src={theme === 'dark' ? logoLightHero : logoDarkHero} 
+                  alt="Student 360 Logo" 
+                  onError={(e) => e.target.src='https://via.placeholder.com/150x50?text=Student+360'} 
+                />
+              </div>
+              <p>Student 360 helps learners stay focused, manage distractions, and build better study habits with a smart and simple extension.</p>
+            </div>
+
+            <div className="footer-links">
+              <div>
+                <h4>Quick Links</h4>
+                <a href="#hero">Home</a>
+                <a href="#download">Download</a>
+                <a href="#faq">FAQ</a>
+              </div>
+              <div>
+                <h4>Why it helps</h4>
+                <a href="#features">Focus tracking</a>
+                <a href="#features">Distraction control</a>
+                <a href="#features">Better study flow</a>
+              </div>
+            </div>
           </div>
-          <p>&copy; 2026 Student 360. All rights reserved.</p>
+
+          <div className="footer-bottom">
+            <p>&copy; 2026 Student 360. Built for students who want to study with intention.</p>
+            <p>Need help? Reach out through the project support channels for installation guidance and updates.</p>
+          </div>
         </div>
       </footer>
     </>
