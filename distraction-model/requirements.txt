@@ -12,3 +12,6 @@ tqdm>=4.66.0
 psutil>=6.0.0
 requests>=2.32.0
 seaborn>=0.13.2
+fastapi
+websockets
+uvicorn
