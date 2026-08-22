@@ -16,6 +16,7 @@ export const getStyle = () => {
 
 export default function Student360Overlay() {
   const [isVisible, setIsVisible] = useState(false)
+  const [isDistracted, setIsDistracted] = useState(false)
   const [reelsCount] = useStorage("reelsCount", 0)
   const [focusMode, setFocusMode] = useStorage("focusMode", false)
   const [advancedFocusMode, setAdvancedFocusMode] = useStorage("advancedFocusMode", false)
@@ -72,6 +73,10 @@ export default function Student360Overlay() {
       if (message.action === "TOGGLE_UI") {
         setIsVisible(prev => !prev)
         sendResponse({ success: true })
+      } else if (message.action === "SHOW_DISTRACTION_ALERT") {
+        setIsDistracted(true)
+      } else if (message.action === "HIDE_DISTRACTION_ALERT") {
+        setIsDistracted(false)
       }
     }
     chrome.runtime.onMessage.addListener(messageListener)
@@ -191,6 +196,56 @@ export default function Student360Overlay() {
           autoComplete="off"
           spellCheck="false"
         />
+      </div>
+    </div>
+  ) : null;
+
+  // --- Distraction UI ---
+  const distractionAlertOverlay = isDistracted ? (
+    <div
+      className="fixed inset-0 z-[2147483647] flex items-center justify-center"
+      style={{
+        fontFamily: "'Montserrat', sans-serif",
+        backgroundColor: "rgba(0, 0, 0, 0.4)" // Light tint so the card's blur works!
+      }}
+    >
+      <div
+        className="flex flex-col items-center"
+        style={{
+          width: "100%",
+          maxWidth: "512px",
+          padding: "32px",
+          borderRadius: "28px",
+          backgroundColor: "rgba(0, 0, 0, 0.35)",
+          backdropFilter: "blur(24px) saturate(150%)",
+          WebkitBackdropFilter: "blur(24px) saturate(150%)",
+          borderTop: "1px solid rgba(255, 255, 255, 0.35)",
+          borderLeft: "1px solid rgba(255, 255, 255, 0.2)",
+          borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.8), 0 2px 8px rgba(0, 0, 0, 0.2)"
+        }}
+      >
+        <div
+          className="flex items-center justify-center font-bold"
+          style={{ width: "56px", height: "56px", borderRadius: "50%", marginBottom: "20px", fontSize: "24px", backgroundColor: "rgba(239, 68, 68, 0.15)", border: "2px solid rgba(239, 68, 68, 0.8)", color: "#EF4444", textShadow: "0 2px 8px rgba(239, 68, 68, 0.4)" }}
+        >
+          ☁️
+        </div>
+
+        <h1
+          className="text-white font-bold tracking-tight text-center"
+          style={{ fontSize: "24px", marginBottom: "12px", lineHeight: "32px", textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}
+        >
+          Daydreaming?
+        </h1>
+
+        <p
+          className="text-center px-2"
+          style={{ fontSize: "14px", marginBottom: "24px", lineHeight: "1.6", color: "rgba(245,245,240,0.6)" }}
+        >
+          Get back to reality and focus! Please look back at your screen to dismiss this message.
+        </p>
       </div>
     </div>
   ) : null;
@@ -449,6 +504,7 @@ export default function Student360Overlay() {
   return createPortal(
     <>
       {blockerOverlay}
+      {distractionAlertOverlay}
       {overlayContent}
     </>,
     document.body

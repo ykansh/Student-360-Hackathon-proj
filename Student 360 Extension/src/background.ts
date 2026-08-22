@@ -218,6 +218,8 @@ async function closeOffscreenDocument() {
 }
 
 let lastNotificationTime = 0;
+let distractionStartTime: number | null = null;
+let hideTimeoutId: number | null = null;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "TOGGLE_ADV_FOCUS") {
@@ -229,16 +231,59 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "ADV_FOCUS_RESULT") {
     if (message.status === "distracted") {
       const now = Date.now();
-      // Throttle notifications to once every 10 seconds
-      if (now - lastNotificationTime > 10000) {
-        chrome.notifications.create({
-          type: "basic",
-          iconUrl: "assets/icon.png", // Fallback to an icon, Chrome may require one
-          title: "Focus Alert!",
-          message: "You seem distracted. Please focus on your studies!"
-        });
-        lastNotificationTime = now;
+      
+      // Start tracking distraction duration if not already tracking
+      if (distractionStartTime === null) {
+        distractionStartTime = now;
       }
+      
+      // Check if distracted continuously for at least 5 seconds
+      if (now - distractionStartTime >= 5000) {
+        // Clear any pending hide timeouts
+        if (hideTimeoutId !== null) {
+          clearTimeout(hideTimeoutId);
+          hideTimeoutId = null;
+        }
+
+        // Throttle notifications to once every 10 seconds
+        if (now - lastNotificationTime > 10000) {
+          chrome.notifications.create({
+            type: "basic",
+            iconUrl: chrome.runtime.getURL("assets/icon.png"), // Use getURL for reliable path resolution
+            title: "Focus Alert!",
+            message: "You seem distracted. Please focus on your studies!"
+          }, (notificationId) => {
+            if (chrome.runtime.lastError) {
+              console.error("Failed to show notification:", chrome.runtime.lastError);
+            } else {
+              console.log("Notification shown successfully", notificationId);
+            }
+          });
+          
+          // Show the in-page overlay
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length > 0 && tabs[0].id) {
+              chrome.tabs.sendMessage(tabs[0].id, { action: "SHOW_DISTRACTION_ALERT" }).catch(() => {});
+            }
+          });
+          
+          lastNotificationTime = now;
+        }
+      }
+    } else {
+      // User is focused, reset the distraction timer
+      if (distractionStartTime !== null) {
+        // Send HIDE_DISTRACTION_ALERT after 2 seconds
+        hideTimeoutId = window.setTimeout(() => {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length > 0 && tabs[0].id) {
+              chrome.tabs.sendMessage(tabs[0].id, { action: "HIDE_DISTRACTION_ALERT" }).catch(() => {});
+            }
+          });
+          hideTimeoutId = null;
+        }, 2000);
+      }
+      distractionStartTime = null;
     }
   } else if (message.action === "CAMERA_PERMISSION_DENIED") {
     // Open a new tab to request camera permission
