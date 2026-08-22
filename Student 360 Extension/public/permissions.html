@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student 360 - Camera Permission</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #0F172A;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    button {
+      background-color: #3B82F6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #2563EB;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Camera Permission Required</h1>
+    <p>Student 360 needs camera access to enable the Advanced Focus Mode distraction detection.</p>
+    <button id="request-btn">Grant Permission</button>
+    <p id="status" style="margin-top: 16px; font-size: 14px; color: #9CA3AF;"></p>
+  </div>
+  <script src="permissions.js"></script>
+</body>
+</html>
