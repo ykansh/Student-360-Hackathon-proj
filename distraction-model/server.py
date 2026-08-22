@@ -49,19 +49,22 @@ async def websocket_endpoint(websocket: WebSocket):
                 results = model(frame, verbose=False)
                 detections = results[0].boxes
 
-                distraction_detected = False
+                best_conf = 0.0
+                best_class = None
+                
                 for i in range(len(detections)):
                     conf = detections[i].conf.item()
-                    if conf > 0.5:
-                        # You can add class filtering here if needed
-                        # classidx = int(detections[i].cls.item())
-                        # classname = labels[classidx]
-                        distraction_detected = True
-                        break
+                    if conf > best_conf:
+                        best_conf = conf
+                        classidx = int(detections[i].cls.item())
+                        best_class = labels[classidx]
+
+                distraction_detected = (best_class is not None and best_class.lower() == "distracted" and best_conf > 0.5)
 
                 if distraction_detected:
                     status = "distracted"
 
+            print(f"Prediction: {status} (Best Class: {best_class}, Confidence: {best_conf:.2f})")
             # Send back the result
             await websocket.send_text(status)
 

@@ -219,7 +219,9 @@ async function closeOffscreenDocument() {
 
 let lastNotificationTime = 0;
 let distractionStartTime: number | null = null;
-let hideTimeoutId: number | null = null;
+let focusStartTime: number | null = null;
+let lastAlertMessageTime = 0;
+let gracePeriodUntil = 0;
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "TOGGLE_ADV_FOCUS") {
@@ -228,24 +230,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     } else {
       closeOffscreenDocument().catch(console.error);
     }
+  } else if (message.action === "MANUAL_DISMISS_ALERT") {
+    gracePeriodUntil = Date.now() + 15000; // 15 seconds of peace
+    distractionStartTime = null;
+    focusStartTime = null;
   } else if (message.action === "ADV_FOCUS_RESULT") {
+    const now = Date.now();
+    if (now < gracePeriodUntil) return; // Ignore AI while in grace period
+
     if (message.status === "distracted") {
-      const now = Date.now();
+      // User is distracted. Reset any progress they made towards being "focused".
+      focusStartTime = null;
       
       // Start tracking distraction duration if not already tracking
       if (distractionStartTime === null) {
         distractionStartTime = now;
       }
       
-      // Check if distracted continuously for at least 5 seconds
+      // Check if distracted for at least 5 seconds (tolerates brief model jitters)
       if (now - distractionStartTime >= 5000) {
-        // Clear any pending hide timeouts
-        if (hideTimeoutId !== null) {
-          clearTimeout(hideTimeoutId);
-          hideTimeoutId = null;
+        // Send alert message to content script (throttled to once a second)
+        if (now - lastAlertMessageTime > 1000) {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length > 0 && tabs[0].id) {
+              chrome.tabs.sendMessage(tabs[0].id, { action: "SHOW_DISTRACTION_ALERT" }).catch(() => {});
+            }
+          });
+          lastAlertMessageTime = now;
         }
 
-        // Throttle notifications to once every 10 seconds
+        // Throttle system notifications to once every 10 seconds
         if (now - lastNotificationTime > 10000) {
           chrome.notifications.create({
             type: "basic",
@@ -255,35 +269,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }, (notificationId) => {
             if (chrome.runtime.lastError) {
               console.error("Failed to show notification:", chrome.runtime.lastError);
-            } else {
-              console.log("Notification shown successfully", notificationId);
             }
           });
-          
-          // Show the in-page overlay
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs.length > 0 && tabs[0].id) {
-              chrome.tabs.sendMessage(tabs[0].id, { action: "SHOW_DISTRACTION_ALERT" }).catch(() => {});
-            }
-          });
-          
           lastNotificationTime = now;
         }
       }
-    } else {
-      // User is focused, reset the distraction timer
-      if (distractionStartTime !== null) {
-        // Send HIDE_DISTRACTION_ALERT after 2 seconds
-        hideTimeoutId = window.setTimeout(() => {
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs.length > 0 && tabs[0].id) {
-              chrome.tabs.sendMessage(tabs[0].id, { action: "HIDE_DISTRACTION_ALERT" }).catch(() => {});
-            }
-          });
-          hideTimeoutId = null;
-        }, 2000);
+    } else if (message.status === "focused") {
+      // User is focused. We tolerate brief jitters by NOT resetting distractionStartTime immediately.
+      if (focusStartTime === null) {
+        focusStartTime = now;
       }
-      distractionStartTime = null;
+
+      // If they have been focused continuously for at least 2 seconds
+      if (now - focusStartTime >= 2000) {
+        // They are officially focused. Reset the distraction timer.
+        distractionStartTime = null;
+
+        // Hide the popup
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs.length > 0 && tabs[0].id) {
+            chrome.tabs.sendMessage(tabs[0].id, { action: "HIDE_DISTRACTION_ALERT" }).catch(() => {});
+          }
+        });
+      }
     }
   } else if (message.action === "CAMERA_PERMISSION_DENIED") {
     // Open a new tab to request camera permission
