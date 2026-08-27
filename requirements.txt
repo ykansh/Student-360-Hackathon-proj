@@ -95,3 +95,14 @@ lxml
 # Agent Tools
 # ==========================
 langsmith
+streamlit
+langchain
+langchain-openai
+langgraph
+PyPDF2
+pytesseract
+Pillow
+python-dotenv
+langchain-google-genai
+langchain-mistralai 
+langchain-core
